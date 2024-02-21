@@ -47,26 +47,29 @@ Before trying to replicate this Database setup using SQL Shell to interact is Pg
 - Ensure that the shell is connected to RealEstateDB  
 `\c realestatedb`
 
-- Enable PostGIS
+- Enable PostGIS  
 `CREATE EXTENSION IF NOT EXISTS postgis;`  
 
 #### Analysis
-**STEP 1** create and populate the table PropertyDetails, which will have 9 columns and will be a nonnormalized table storing all the original information
+**STEP 1** create and populate the table PropertyDetails, which will have 9 columns and will be a nonnormalized table storing all the original information.
+There will be a geometry column that will store the long lat data- this is possible due to our PostGIS extension. Here is an example row of code of PropertyDetails. See the file analysis.sql for the full code.
+`(2, '52 Holywood St', 'Worcester', 'MA', 'USA', 'Multi-family Residential', 'Gas, Water, Electric', ST_GeomFromText('POINT(-71.798889 42.271389)', 4326) , '205918'),'`  
+Original, non-normal PropertyDetails table:  
 ![screenshot of og table]()  
 Now the datatables need to be normalized. Each column needs to have atomic values and depend on only one unique primary key. The column, "Utlitly" does not have atomic values, and therefore our data table needs to be split into two tables.
-**STEP 2** Create a new table Utilties from PropertyDetails with PropertyID as the foreign key and populate the table with utilities from the original table with each associated address
-![screenshot of utilties table]() 
-
+**STEP 2** Create a new table Utilties from PropertyDetails with PropertyID as the foreign key and populate the table with utilities from the original table with each associated address. Drop the now redundant Utility from PropertyDetails  
+Ultilities table 1NF/2NF:
+![screenshot of utilties table]()   
+  
+Code to create Utilities table:  
 `CREATE TABLE Utilities (
 UtilityID SERIAL PRIMARY KEY,
 PropertyID INT,
 Utility VARCHAR(255),
 FOREIGN KEY (PropertyID) REFERENCES PropertyDetails(PropertyID)
-);
+);`  
 
-
--- Interset data into 'Utilities.'  with 'PropertyID' referencing 'PropertyID' from 'PropertyDetails' table
-INSERT INTO Utilities (PropertyID, Utility) VALUES
+`INSERT INTO Utilities (PropertyID, Utility) VALUES
 (1, 'Gas'), 
 (1, 'Water'),
 (1, 'Electric'),
@@ -79,35 +82,56 @@ INSERT INTO Utilities (PropertyID, Utility) VALUES
 (3, 'Central Heat'), 
 (3, 'Central Cool');`  
 
+Now we have two tables PropertyDetails and Utilities. Both tables are in 2NF becase they are in 1NF and there are no partial dependencies. In order to make our data 3NF we must remove all transitive dependenies. In this case 'State', 'Country', and 'CityPopulation' have a transtitive dependency on 'City'.
+
+**STEP 3**  Create a table 'CityDemographics' to store State, Country, and CityPopulation for each address and drop the columns from 'PropertyDetails'.  
+Example of CityDemographics table:  
+[screenshot of CityDemographics table]()   
+  
+There is a Multivariate dependency in PropertyDetails. 'Zoning' is not directly related to 'City', but both 'Zoning' and 'City' rely directly on the Primary Key. It would be best if they were split into two differnt columns.  
+
+**STEP 4**  Create the table PropertyZoning and ensure to include the code that PropertyID in Zoning references PropertyID in PropertyDetails. Populate the table and then drop 'Zoning' from Property Details
+`PropertyID INT REFERENCES PropertyDetails(PropertyID)`  
+Example of Zoning table:
+[screenshot of Zoning]()     
+By the end your 'PropertyDetails' should look like this:
+[screenshot of PD]()   
+
+**STEP 5** As a test, you can insert a new point into your PropertyDetails table. I chose
+`INSERT INTO PropertyDetails (PropertyID, Address, City, GeoLocation) VALUES 
+(4, '950 Main St', 'Worcester', ST_GeomFromText('POINT(-71.8245 42.2520)', 4326));`
 
 
+[screenshot of PD]()   
 ### Challenges
-Challenges: I tried to make Utilies prim key dependent on the foreing key from property descriptions instead of properties, which resulted in the error
-ERROR:  duplicate key value violates unique constraint "utilities_pkey"
-DETAIL:  Key (propertyid)=(1) already exists.
-which made me realize that i forgot to create a new talble 'Properties' which does not include utilities of which Utilities should depend on- NOT the original table.... but then i was still getting that proble, and I realized that i set Property ID as my serial primary key instead of Utility ID so instead of this:  
+Here I detail the chalenges I encountered in the form of a numbered list:  
+1. I tried to make Utilies prim key dependent on the foreing key from property descriptions instead of properties, which resulted in the error:  
+`ERROR:  duplicate key value violates unique constraint "utilities_pkey"
+DETAIL:  Key (propertyid)=(1) already exists.`  
+This made me realize that I had set Property ID as my serial primary key instead of Utility ID so instead of this:  
 `CREATE TABLE Utilities (
 UtilityID SERIAL PRIMARY KEY,
 PropertyID INT,
 Utility VARCHAR(255),
 FOREIGN KEY (PropertyID) REFERENCES Properties(PropertyID)
 );`  
-I had... This:  
+I had written this which was resulting in the error:  
 `CREATE TABLE Utilities (
 PropertyID SERIAL PRIMARY KEY,
 Utility VARCHAR(255),
 FOREIGN KEY (PropertyID) REFERENCES Properties(PropertyID)
 );`
 
-Challenge: When trying to preform spatal analaysis
-INSERT INTO Properties (Address, City, GeoLocation) VALUES
-realestatedb-# ('950 Main St', 'Worcester', ST_GeomFromText('POINT(-71.8245 42.2520)', 4326));
-ERROR:  duplicate key value violates unique constraint "properties_pkey"
-DETAIL:  Key (propertyid)=(1) already exists.
+1. When trying to preform spatal analaysis...
+`INSERT INTO Properties (Address, City, GeoLocation) VALUES
+realestatedb-# ('950 Main St', 'Worcester', ST_GeomFromText('POINT(-71.8245 42.2520)', 4326));`
+I recieved this error:  
+`ERROR:  duplicate key value violates unique constraint "properties_pkey"
+DETAIL:  Key (propertyid)=(1) already exists.`  
+I realized that there was no primary key in my insert, so I labeled it as 4. and put that infrom the 950 Main St.
 
 
-Challenge - I will ask in class/office hours, but writing this down here as well
-Questios: Why is it that in CityDemographics the column 'City' is used as a primary key? why is it not a serial primary key called CityID with 'City' as a separate column'? Is it because it is atomic? Furthermore, in the SQL query we didn't set them to reference the original table, I suppose this is because City in PropertyDetails is not a Primary Key, but then , how does the database know the two tables are linked?
-
+1.  I will ask in class/office hours, but writing this down here as well 
+Question: Why is it that in 'CityDemographics' the column 'City' is used as a primary key? why is it not a serial primary key called 'CityID' with 'City' as a separate column'? Is it because it is atomic and therefore doesnt need a numeric ID? Furthermore, in the SQL query we didn't have 'CityDemographics' reference the original table, I suppose this is because 'City' in 'PropertyDetails' is not a Primary Key, but then , how does the database know the two tables are linked?  
 Another question: why is it that address and city are not considered to have a partial dependency?
-
+- I should have gone to office hours with this questions, I will this week!

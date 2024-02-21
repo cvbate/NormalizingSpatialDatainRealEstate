@@ -105,7 +105,7 @@ ALTER TABLE Properties DROP COLUMN ZoningType;
 INSERT INTO PropertyDetails (PropertyID, Address, City, GeoLocation) VALUES 
 (4, '950 Main St', 'Worcester', ST_GeomFromText('POINT(-71.8245 42.2520)', 4326));
 
--- need to edit
+
 SELECT Address, City
 FROM Properties
 WHERE ST_DWithin(
