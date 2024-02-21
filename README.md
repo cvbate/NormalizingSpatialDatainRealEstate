@@ -31,11 +31,14 @@ Database normalization rules:
 1. README.MD (this document): A Markdown file containing the Normalization Report.
 1. analysis.sql : A commented SQL script that created and normaled tables.
 1. Screenshots showing the structures of my final tables in pgAdmin. The screenshots of each table includes:  
-    -  = 'orignal' table 
-    -  = 1NF
-    -  = 2NF
-    -  = 3NF
-    -  = 4NF  
+    - PropertyDetails_01.png = 'orignal' table 
+    - Utilities_1NF_2NF.png = 1NF/ 2NF
+    - PropertyDetails_1NF_2NF.png = 1NF/ 2NF
+    - PropertyDetails_3NF.png = 3NF
+    - CityDemographics_3NF.png = 3NF
+    - PropertyDetails4NF.png  = 4NF  
+    - Zoning_4NF.png  = 4NF  
+    - PropertyDetails4NF_plus1 = 4NF
     
 
 ### Methods
@@ -53,13 +56,16 @@ Before trying to replicate this Database setup using SQL Shell to interact is Pg
 #### Analysis
 **STEP 1** create and populate the table PropertyDetails, which will have 9 columns and will be a nonnormalized table storing all the original information.
 There will be a geometry column that will store the long lat data- this is possible due to our PostGIS extension. Here is an example row of code of PropertyDetails. See the file analysis.sql for the full code.
-`(2, '52 Holywood St', 'Worcester', 'MA', 'USA', 'Multi-family Residential', 'Gas, Water, Electric', ST_GeomFromText('POINT(-71.798889 42.271389)', 4326) , '205918'),'`  
+`(2, '52 Holywood St', 'Worcester', 'MA', 'USA', 'Multi-family Residential', 'Gas, Water, Electric', ST_GeomFromText('POINT(-71.798889 42.271389)', 4326) , '205918'),'`
+    
 Original, non-normal PropertyDetails table:  
 ![screenshot of og table](PropertyDetails_01.png)  
+  
 Now the datatables need to be normalized. Each column needs to have atomic values and depend on only one unique primary key. The column, "Utlitly" does not have atomic values, and therefore our data table needs to be split into two tables.
 **STEP 2** Create a new table Utilties from PropertyDetails with PropertyID as the foreign key and populate the table with utilities from the original table with each associated address. Drop the now redundant Utility from PropertyDetails  
+  
 Ultilities table 1NF/2NF:  
-![screenshot of utilties table]()   
+![screenshot of utilties table](Utilities_1NF_2NF.png)   
   
 Code to create Utilities table:  
 `CREATE TABLE Utilities (
@@ -83,26 +89,34 @@ FOREIGN KEY (PropertyID) REFERENCES PropertyDetails(PropertyID)
 (3, 'Central Cool');`  
 
 Now we have two tables PropertyDetails and Utilities. Both tables are in 2NF becase they are in 1NF and there are no partial dependencies. In order to make our data 3NF we must remove all transitive dependenies. In this case 'State', 'Country', and 'CityPopulation' have a transtitive dependency on 'City'.
-
-**STEP 3**  Create a table 'CityDemographics' to store State, Country, and CityPopulation for each address and drop the columns from 'PropertyDetails'.  
-Example of CityDemographics table:  
-[screenshot of CityDemographics table]()   
   
+PropertyDetails 1NF/2NF table:  
+![screenshot of pd table](PropertyDetails_1NF_2NF.png)   
+
+**STEP 3**  Create a table 'CityDemographics' to store State, Country, and CityPopulation for each address and drop the columns from 'PropertyDetails'. 
+   
+Example of CityDemographics table:  
+![screenshot of CityDemographics table](CityDemographics_3NF.png)   
+  
+PropertyDetails 3NF table:  
+![screenshot of PD#2](PropertyDetails_3NF.png)   
+    
 There is a Multivariate dependency in PropertyDetails. 'Zoning' is not directly related to 'City', but both 'Zoning' and 'City' rely directly on the Primary Key. It would be best if they were split into two differnt columns.  
 
 **STEP 4**  Create the table PropertyZoning and ensure to include the code that PropertyID in Zoning references PropertyID in PropertyDetails. Populate the table and then drop 'Zoning' from Property Details  
 `PropertyID INT REFERENCES PropertyDetails(PropertyID)`  
+  
 Example of Zoning table:  
-[screenshot of Zoning]()     
+![screenshot of Zoning](Zoning_4NF.png)     
 By the end your 'PropertyDetails' should look like this:  
-[screenshot of PD]()   
+![screenshot of PD #4](PropertyDetails4NF.png)   
 
 **STEP 5** As a test, you can insert a new point into your PropertyDetails table. I chose  
 `INSERT INTO PropertyDetails (PropertyID, Address, City, GeoLocation) VALUES 
 (4, '950 Main St', 'Worcester', ST_GeomFromText('POINT(-71.8245 42.2520)', 4326));`
 
-  
-[screenshot of PD]()   
+Screenshot of Propertydetails after inserting additional value
+![screenshot of PD](PropertyDetails4NF_plus1)   
 ### Challenges
 Here I detail the chalenges I encountered in the form of a numbered list:  
 1. I tried to make Utilies prim key dependent on the foreing key from property descriptions instead of properties, which resulted in the error:  
