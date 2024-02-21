@@ -7,6 +7,8 @@ CREATE DATABASE RealEstateDB;
 -- Enable PostGIS
 CREATE EXTENSION IF NOT EXISTS postgis;
 
+------------------------------------------------ Database setup above, original table creation below
+
 -- create the table PropertyDetails, which will have 9 columns
 CREATE TABLE PropertyDetails (
 PropertyID SERIAL PRIMARY KEY,
@@ -27,7 +29,7 @@ INSERT INTO  PropertyDetails (PropertyID, Address, City, State, Country, ZoningT
 (3, '43 Broadway', 'New Haven', 'CT', 'USA', 'Commerical', 'Gas, Water, Electric, Central Heat, Central Cool', ST_GeomFromText('POINT(-72.929916 41.310726)', 4326) , '135081');
 
 
----------------------------------- Original Table above...  Steps to 1NF Below
+------------------------------------------------ Original Table above...  Steps to 1NF Below
 
 -- Create a table without the Utilities
 CREATE TABLE Properties(
@@ -49,12 +51,13 @@ Utility VARCHAR(255),
 FOREIGN KEY (PropertyID) REFERENCES Properties(PropertyID)
 );
 
+-
 INSERT INTO Properties (PropertyID, Address, City, State, Country, ZoningType, GeoLocation, CityPopulation) VALUES
 (1, '155 Colony Rd', 'New Haven', 'CT', 'USA', 'Residential', ST_GeomFromText('POINT(-72.929916 41.310726)', 4326), '135081'),
 (2, '52 Holywood St', 'Worcester', 'MA', 'USA', 'Multi-family Residential', ST_GeomFromText('POINT(-71.798889 42.271389)', 4326) , '205918'),
 (3, '43 Broadway', 'New Haven', 'CT', 'USA', 'Commerical', ST_GeomFromText('POINT(-72.929916 41.310726)', 4326) , '135081');
 
-
+--
 INSERT INTO Utilities (PropertyID, Utility) VALUES
 (1, 'Gas'), 
 (1, 'Water'),
@@ -71,5 +74,25 @@ INSERT INTO Utilities (PropertyID, Utility) VALUES
 
 
 --our tables are automatically in 2NF becase they are in 1NF and there are no partial dependencies
--------------------------------- 1NF above/2NF, #NF Below 
+------------------------------------------------ 1NF above/2NF, 3NF Below 
+--Everything below here has not been run yet
 
+--
+CREATE TABLE CityDemographics (
+City VARCHAR(100) PRIMARY KEY,
+State VARCHAR(50),
+Country VARCHAR(50),
+CityPopulation INT
+);
+
+--
+INSERT INTO CityDemographics (City, State, Country, CityPopulation) VALUES
+(1, 'New Haven', 'CT', 'USA', '135081'),
+(2, 'Worcester', 'MA', 'USA', '205918')
+;
+
+--
+ALTER TABLE PropertyDetails DROP COLUMN CityPopulation, DROP COLUMN State, DROP COLUMN Country;
+
+
+------------------------------------------------3NF Above, 4NF below
