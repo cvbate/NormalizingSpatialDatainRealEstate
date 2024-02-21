@@ -58,7 +58,7 @@ Original, non-normal PropertyDetails table:
 ![screenshot of og table]()  
 Now the datatables need to be normalized. Each column needs to have atomic values and depend on only one unique primary key. The column, "Utlitly" does not have atomic values, and therefore our data table needs to be split into two tables.
 **STEP 2** Create a new table Utilties from PropertyDetails with PropertyID as the foreign key and populate the table with utilities from the original table with each associated address. Drop the now redundant Utility from PropertyDetails  
-Ultilities table 1NF/2NF:
+Ultilities table 1NF/2NF:  
 ![screenshot of utilties table]()   
   
 Code to create Utilities table:  
@@ -90,18 +90,18 @@ Example of CityDemographics table:
   
 There is a Multivariate dependency in PropertyDetails. 'Zoning' is not directly related to 'City', but both 'Zoning' and 'City' rely directly on the Primary Key. It would be best if they were split into two differnt columns.  
 
-**STEP 4**  Create the table PropertyZoning and ensure to include the code that PropertyID in Zoning references PropertyID in PropertyDetails. Populate the table and then drop 'Zoning' from Property Details
+**STEP 4**  Create the table PropertyZoning and ensure to include the code that PropertyID in Zoning references PropertyID in PropertyDetails. Populate the table and then drop 'Zoning' from Property Details  
 `PropertyID INT REFERENCES PropertyDetails(PropertyID)`  
-Example of Zoning table:
+Example of Zoning table:  
 [screenshot of Zoning]()     
-By the end your 'PropertyDetails' should look like this:
+By the end your 'PropertyDetails' should look like this:  
 [screenshot of PD]()   
 
-**STEP 5** As a test, you can insert a new point into your PropertyDetails table. I chose
+**STEP 5** As a test, you can insert a new point into your PropertyDetails table. I chose  
 `INSERT INTO PropertyDetails (PropertyID, Address, City, GeoLocation) VALUES 
 (4, '950 Main St', 'Worcester', ST_GeomFromText('POINT(-71.8245 42.2520)', 4326));`
 
-
+  
 [screenshot of PD]()   
 ### Challenges
 Here I detail the chalenges I encountered in the form of a numbered list:  

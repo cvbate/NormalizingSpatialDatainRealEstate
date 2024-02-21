@@ -84,9 +84,9 @@ ALTER TABLE PropertyDetails DROP COLUMN CityPopulation, DROP COLUMN State, DROP 
 
 
 CREATE TABLE PropertyZoning (
-    PropertyZoningID SERIAL PRIMARY KEY,
-    PropertyID INT REFERENCES PropertyDetails(PropertyID),
-    ZoningType VARCHAR(100)
+PropertyZoningID SERIAL PRIMARY KEY,
+PropertyID INT REFERENCES PropertyDetails(PropertyID),
+ZoningType VARCHAR(100)
 );
 
 INSERT INTO PropertyZoning (PropertyID, ZoningType) VALUES
@@ -97,7 +97,7 @@ INSERT INTO PropertyZoning (PropertyID, ZoningType) VALUES
 
 -- in the lab we are supposed to do ulitilites here as well, but I did that earlier because it was non-atomic and so it didn't fit into 1NF
 
-ALTER TABLE Properties DROP COLUMN ZoningType;
+ALTER TABLE PropertyDetails DROP COLUMN ZoningType;
 
 
 --STEP 5------------------------------------- Spatial Data Manipulation
