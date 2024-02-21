@@ -55,7 +55,7 @@ Before trying to replicate this Database setup using SQL Shell to interact is Pg
 There will be a geometry column that will store the long lat data- this is possible due to our PostGIS extension. Here is an example row of code of PropertyDetails. See the file analysis.sql for the full code.
 `(2, '52 Holywood St', 'Worcester', 'MA', 'USA', 'Multi-family Residential', 'Gas, Water, Electric', ST_GeomFromText('POINT(-71.798889 42.271389)', 4326) , '205918'),'`  
 Original, non-normal PropertyDetails table:  
-![screenshot of og table]()  
+![screenshot of og table](PropertyDetails_01.png)  
 Now the datatables need to be normalized. Each column needs to have atomic values and depend on only one unique primary key. The column, "Utlitly" does not have atomic values, and therefore our data table needs to be split into two tables.
 **STEP 2** Create a new table Utilties from PropertyDetails with PropertyID as the foreign key and populate the table with utilities from the original table with each associated address. Drop the now redundant Utility from PropertyDetails  
 Ultilities table 1NF/2NF:  
