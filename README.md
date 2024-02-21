@@ -50,6 +50,36 @@ Before trying to replicate this Database setup using SQL Shell to interact is Pg
 - Enable PostGIS
 `CREATE EXTENSION IF NOT EXISTS postgis;`
 
+#### Analysis
+**STEP 1** create and populate the table PropertyDetails, which will have 9 columns and will be a nonnormalized table storing all the original information
+![screenshot of og table]()  
+Now the datatables need to be normalized. Each column needs to have atomic values and depend on only one unique primary key. The column, "Utlitly" does not have atomic values, and therefore our data table needs to be split into two tables.
+**STEP 2** Create a new table Utilties from PropertyDetails with PropertyID as the foreign key and populate the table with utilities from the original table with each associated address
+![screenshot of utilties table]() 
+
+` CREATE TABLE Utilities (
+UtilityID SERIAL PRIMARY KEY,
+PropertyID INT,
+Utility VARCHAR(255),
+FOREIGN KEY (PropertyID) REFERENCES PropertyDetails(PropertyID)
+);
+
+
+-- Interset data into 'Utilities.'  with 'PropertyID' referencing 'PropertyID' from 'PropertyDetails' table
+INSERT INTO Utilities (PropertyID, Utility) VALUES
+(1, 'Gas'), 
+(1, 'Water'),
+(1, 'Electric'),
+(2, 'Gas'), 
+(2, 'Water'),
+(2, 'Electric'),
+(3, 'Gas'), 
+(3, 'Water'),
+(3, 'Electric'),
+(3, 'Central Heat'), 
+(3, 'Central Cool');`  
+
+
 
 ### Challenges
 Challenges: I tried to make Utilies prim key dependent on the foreing key from property descriptions instead of properties, which resulted in the error
