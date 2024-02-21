@@ -17,7 +17,7 @@
 This project was created as part of the class Spatial Databases at Clark University Spring, 2024. The objective of this assignent is to continue to work with the concept of database normalization by creating a non-normal database of addresses that include geospatial locations and city population data and working with PostGIS. We are to normalize it all the way through to 4NF. To write and implement the SQL script I used the SQLShell to interact with PGAdmin with PostGIS extension and used VSCode to manage my repository and store my SQL script.     
 The full assignment instructions can be found on the class website, [here](https://studyingplace.space/spatial-database/labs/A3-Real_Estate_Database.html#part-4-normalize-to-4nf)  
 
-**What is PostGIS?** PostGIS is an extension that allows you to work with geospatial objects and perform spatial queries.
+**What is PostGIS?** PostGIS is an extension for PGAdmin that allows an analyist to work with geospatial objects and perform spatial queries.
 
 Database normalization rules:  
 **1NF**: A 1NF table should have all atomic values—there should be no repeating values within a column— and each row should be uniquely idenfiable by a primary key
@@ -29,18 +29,18 @@ Database normalization rules:
 
 ### This repository includes
 1. README.MD (this document): A Markdown file containing the Normalization Report.
-1. analysis.sql : SQL script that created and normaled tables
-1. Screenshots showing the structures of my final tablesin pgAdmin. The screenshots of each table includes:  
-    - Pets_Ive_Had_table1 = 'orignal' table 
-    - Pets_table2 = lists pets with PetID as primary key = 1NF
-    - Pets_Descrip_table3 = lists decriptions with DescripID as primary key  = 1NF
-    - Descrip_table4  = 2NF
-
-
+1. analysis.sql : A commented SQL script that created and normaled tables.
+1. Screenshots showing the structures of my final tables in pgAdmin. The screenshots of each table includes:  
+    -  = 'orignal' table 
+    -  = 1NF
+    -  = 2NF
+    -  = 3NF
+    -  = 4NF  
+    
 
 ### Methods
 
-Before trying to replicate this Database setup using SQL Shell to interact is PgAdmin:
+Before trying to replicate this Database setup using SQL Shell to interact is PgAdmin and makesure PostGIS is installed:  
 - create new database called RealEstateDB
 `CREATE DATABASE RealEstateDB;`
 
@@ -51,7 +51,7 @@ Before trying to replicate this Database setup using SQL Shell to interact is Pg
 `CREATE EXTENSION IF NOT EXISTS postgis;`
 
 
-
+### Challenges
 Challenges: I tried to make Utilies prim key dependent on the foreing key from property descriptions instead of properties, which resulted in the error
 ERROR:  duplicate key value violates unique constraint "utilities_pkey"
 DETAIL:  Key (propertyid)=(1) already exists.
