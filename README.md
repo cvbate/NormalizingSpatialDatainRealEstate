@@ -41,14 +41,14 @@ Database normalization rules:
 ### Methods
 
 Before trying to replicate this Database setup using SQL Shell to interact is PgAdmin and makesure PostGIS is installed:  
-- create new database called RealEstateDB
+- create new database called RealEstateDB  
 `CREATE DATABASE RealEstateDB;`
 
-- Ensure that the shell is connected to RealEstateDB
+- Ensure that the shell is connected to RealEstateDB  
 `\c realestatedb`
 
 - Enable PostGIS
-`CREATE EXTENSION IF NOT EXISTS postgis;`
+`CREATE EXTENSION IF NOT EXISTS postgis;`  
 
 #### Analysis
 **STEP 1** create and populate the table PropertyDetails, which will have 9 columns and will be a nonnormalized table storing all the original information
@@ -57,7 +57,7 @@ Now the datatables need to be normalized. Each column needs to have atomic value
 **STEP 2** Create a new table Utilties from PropertyDetails with PropertyID as the foreign key and populate the table with utilities from the original table with each associated address
 ![screenshot of utilties table]() 
 
-` CREATE TABLE Utilities (
+`CREATE TABLE Utilities (
 UtilityID SERIAL PRIMARY KEY,
 PropertyID INT,
 Utility VARCHAR(255),
