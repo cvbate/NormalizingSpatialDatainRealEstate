@@ -55,7 +55,7 @@ Before trying to replicate this Database setup using SQL Shell to interact is Pg
 
 #### Analysis
 **STEP 1** create and populate the table PropertyDetails, which will have 9 columns and will be a nonnormalized table storing all the original information.
-There will be a geometry column that will store the long lat data- this is possible due to our PostGIS extension. Here is an example row of code of PropertyDetails. See the file analysis.sql for the full code.
+There will be a geometry column that will store the long lat data- this is possible due to our PostGIS extension. Here is an example row of code of PropertyDetails. See the file analysis.sql for the full code.  
 `(2, '52 Holywood St', 'Worcester', 'MA', 'USA', 'Multi-family Residential', 'Gas, Water, Electric', ST_GeomFromText('POINT(-71.798889 42.271389)', 4326) , '205918'),'`
     
 Original, non-normal PropertyDetails table:  
@@ -116,7 +116,7 @@ By the end your 'PropertyDetails' should look like this:
 (4, '950 Main St', 'Worcester', ST_GeomFromText('POINT(-71.8245 42.2520)', 4326));`
 
 Screenshot of Propertydetails after inserting additional value
-![screenshot of PD](PropertyDetails4NF_plus1)   
+![screenshot of PD](PropertyDetails4NF_plus1.png)   
 ### Challenges
 Here I detail the chalenges I encountered in the form of a numbered list:  
 1. I tried to make Utilies prim key dependent on the foreing key from property descriptions instead of properties, which resulted in the error:  

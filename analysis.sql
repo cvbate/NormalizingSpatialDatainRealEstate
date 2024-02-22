@@ -101,16 +101,16 @@ ALTER TABLE PropertyDetails DROP COLUMN ZoningType;
 
 
 --STEP 5------------------------------------- Spatial Data Manipulation
-
+-- To test, insert a new row into PropertyDetails
 INSERT INTO PropertyDetails (PropertyID, Address, City, GeoLocation) VALUES 
 (4, '950 Main St', 'Worcester', ST_GeomFromText('POINT(-71.8245 42.2520)', 4326));
 
-
+-- Select from Address and City the points that are within 10km 
 SELECT Address, City
-FROM Properties
+FROM PropertyDetails
 WHERE ST_DWithin(
     GeoLocation,
     ST_GeomFromText('POINT(-71.8245 42.2520)', 4326),
-    10000 -- 10km radius
+    1 -- 1km radius
 );
 
